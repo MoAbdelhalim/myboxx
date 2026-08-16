@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Votez pour les pièces — JAWHARA BOX</title>
+<meta name="description" content="Dites-nous quelles pièces vous voulez voir dans le coffret. Notez-les, nous gardons celles que vous préférez.">
+<meta name="robots" content="noindex,follow">
+<link rel="preconnect" href="https://res.cloudinary.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@300;400;500;600&family=Noto+Kufi+Arabic:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --velvet:#16352a; --velvet-2:#0a1a14; --gold:#c9a45c; --gold-soft:#e6cf9a;
+  --ivory:#f6f1e8; --muted:#a8bdb0;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;max-width:100%;overflow-x:hidden}
+body{
+  font-family:'Jost',system-ui,sans-serif; color:var(--ivory);
+  background:
+    radial-gradient(80vw 60vh at 18% -8%,rgba(226,190,108,.14),transparent 62%),
+    radial-gradient(70vw 55vh at 88% 12%,rgba(120,60,80,.18),transparent 66%),
+    linear-gradient(175deg,#1b3f31 0%,var(--velvet) 38%,var(--velvet-2) 100%);
+  background-attachment:fixed;
+}
+html[lang="ar"] body{font-family:'Noto Kufi Arabic','Jost',sans-serif}
+
+header{
+  position:fixed; top:0; left:0; right:0; z-index:10;
+  display:flex; align-items:center; gap:10px; padding:12px 16px;
+  padding-top:calc(12px + env(safe-area-inset-top));
+  background:linear-gradient(180deg,rgba(10,26,20,.92),rgba(10,26,20,0));
+}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.1rem;letter-spacing:.16em;color:var(--gold-soft);text-decoration:none}
+.logo b{color:var(--ivory);font-weight:500}
+header .sp{flex:1}
+select,.mini{
+  background:rgba(0,0,0,.45); border:1px solid rgba(201,164,92,.45); color:var(--ivory);
+  border-radius:999px; padding:8px 12px; font:inherit; font-size:.78rem; appearance:none; cursor:pointer;
+}
+select option{background:var(--velvet-2)}
+
+/* one piece per screen, snapped */
+main{height:100dvh; overflow-y:auto; scroll-snap-type:y mandatory; scroll-behavior:smooth}
+.card{
+  height:100dvh; scroll-snap-align:start; scroll-snap-stop:always;
+  display:grid; grid-template-rows:1fr auto; gap:10px;
+  padding:64px 16px calc(18px + env(safe-area-inset-bottom));
+  max-width:520px; margin-inline:auto;
+}
+.shot{
+  position:relative; border-radius:20px; overflow:hidden; background:#0a1510;
+  border:1px solid rgba(201,164,92,.25); display:grid; place-items:center;
+}
+.shot img{width:100%; height:100%; object-fit:cover; display:block}
+.pos{
+  position:absolute; top:12px; inset-inline-start:12px; z-index:2;
+  background:rgba(10,26,20,.72); border:1px solid rgba(201,164,92,.35);
+  border-radius:999px; padding:5px 11px; font-size:.68rem; letter-spacing:.1em; color:var(--gold-soft);
+}
+.done{
+  position:absolute; inset:0; z-index:3; display:none; place-items:center;
+  background:rgba(10,26,20,.72); backdrop-filter:blur(3px);
+  font-family:'Cormorant Garamond',serif; font-size:1.5rem; color:var(--gold-soft);
+}
+.card.rated .done{display:grid}
+
+.meta{text-align:center}
+.cat{font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
+.name{font-family:'Cormorant Garamond',serif;font-size:1.25rem;margin-top:2px}
+html[lang="ar"] .name{font-family:'Noto Kufi Arabic',serif;font-size:1.05rem}
+.ask{font-size:.78rem;color:var(--muted);margin-top:8px}
+
+.stars{display:flex;justify-content:center;gap:6px;margin-top:10px}
+.stars button{
+  width:52px;height:52px;border-radius:14px;background:rgba(0,0,0,.25);
+  border:1px solid rgba(201,164,92,.3); color:rgba(230,207,154,.45);
+  font-size:1.5rem;line-height:1;cursor:pointer;transition:.15s;
+}
+.stars button.on{color:var(--gold-soft);border-color:var(--gold);background:rgba(201,164,92,.16)}
+.stars button:active{transform:scale(.93)}
+.row{display:flex;gap:8px;justify-content:center;margin-top:10px}
+.skip{background:none;border:none;color:var(--muted);font:inherit;font-size:.78rem;
+  text-decoration:underline;cursor:pointer;padding:8px}
+
+.end{
+  height:100dvh; scroll-snap-align:start; display:grid; place-items:center;
+  text-align:center; padding:24px; max-width:520px; margin-inline:auto;
+}
+.end h2{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:1.9rem;color:var(--gold-soft)}
+.end p{color:var(--muted);margin:12px 0 20px;max-width:34ch}
+.cta{background:var(--gold);color:#1a1408;border:none;border-radius:999px;padding:14px 28px;
+  font:inherit;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;display:inline-block}
+.bar{position:fixed;top:0;left:0;height:3px;background:var(--gold);z-index:20;transition:width .25s}
+.note{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;
+  font-size:.72rem;color:var(--muted);pointer-events:none;z-index:9}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="bar" id="bar" style="width:0"></div>
+
+<header>
+  <a class="logo" href="/">JAWHARA <b>BOX</b></a>
+  <div class="sp"></div>
+  <select id="cat" aria-label="Catégorie"></select>
+  <select id="lang" aria-label="Langue">
+    <option value="fr">FR</option><option value="ar">AR</option><option value="en">EN</option>
+  </select>
+</header>
+
+<main id="feed"></main>
+<div class="note" id="note"></div>
+
+<script>
+const DB   = "https://www.jawharabox.shop";           /* only used for links */
+const BASE = "https://my-db-project-b2add-default-rtdb.europe-west1.firebasedatabase.app";
+const SHOP = "her";
+const IGNORE = ['packaging','packing','settings','orders','boxes','categories','catalogue','votes'];
+
+const T = {
+  fr:{ask:"Cette pièce mérite-t-elle sa place dans le coffret ?",
+      skip:"Passer", thanks:"Merci !",
+      done:"Vos votes nous disent quelles pièces garder. Les mieux notées restent dans les plateaux.",
+      build:"Composer mon coffret", rated:"Noté", left:"restantes",
+      allDone:"Vous avez tout noté dans cette catégorie.", offline:"Vote non enregistré — réessayez plus tard"},
+  ar:{ask:"واش هاد القطعة تستاهل مكان فالعلبة؟",
+      skip:"تخطي", thanks:"شكرًا لك!",
+      done:"تصويتك يقول لنا أي القطع نحتفظ بها. الأعلى تقييمًا تبقى في الرفوف.",
+      build:"صنع علبتي", rated:"تم التقييم", left:"متبقية",
+      allDone:"قيّمتِ كل القطع في هذه الفئة.", offline:"لم يُسجل التصويت — حاول لاحقًا"},
+  en:{ask:"Does this piece deserve a place in the box?",
+      skip:"Skip", thanks:"Thank you!",
+      done:"Your votes tell us which pieces to keep. The best-rated stay in the trays.",
+      build:"Build my box", rated:"Rated", left:"left",
+      allDone:"You have rated everything in this category.", offline:"Vote not saved — try again later"}
+};
+
+let CAT={}, LABELS={}, cat='', lang='fr', items=[], rated={};
+
+/* one id per device, so the same person is not counted twice */
+const VOTER = (function(){
+  try{
+    let v = localStorage.getItem('jawhara_voter');
+    if(!v){ v = 'v' + Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4);
+            localStorage.setItem('jawhara_voter', v); }
+    return v;
+  }catch(e){ return 'v' + Date.now().toString(36); }
+})();
+
+function loadRated(){
+  try{ rated = JSON.parse(localStorage.getItem('jawhara_rated') || '{}'); }catch(e){ rated = {}; }
+}
+function markRated(key, r){
+  rated[key] = r;
+  try{ localStorage.setItem('jawhara_rated', JSON.stringify(rated)); }catch(e){}
+}
+
+const t = k => (T[lang] || T.fr)[k];
+const stem = url => (String(url).match(/\/([^/]+)\.[a-z0-9]+(?:\?|$)/i) || [,''])[1];
+const big = url => String(url).replace(/w_\d+,h_\d+/, 'w_800,h_800');
+const labelOf = c => (LABELS[c] && (LABELS[c][lang] || LABELS[c].fr)) || c;
+
+const looksLikeItems = n => {
+  const l = Array.isArray(n) ? n : Object.values(n || {});
+  return l.length > 0 && l.some(i => i && i.name && i.img);
+};
+
+async function load(){
+  for(const url of [BASE + '/' + SHOP + '.json', BASE + '/.json']){
+    try{
+      const r = await fetch(url + '?_=' + Date.now(), { cache:'no-store' });
+      if(!r.ok) continue;
+      const raw = await r.json();
+      if(!raw) continue;
+      LABELS = raw._labels || {};
+      const out = {};
+      Object.keys(raw).forEach(k=>{
+        if(k.charAt(0) === '_') return;
+        const s = k.toLowerCase().trim();
+        if(IGNORE.indexOf(s) > -1) return;
+        if(!looksLikeItems(raw[k])) return;
+        const list = Array.isArray(raw[k]) ? raw[k] : Object.values(raw[k]);
+        out[s] = list.filter(i => i && i.name && i.img);
+      });
+      if(Object.keys(out).length){ CAT = out; return true; }
+    }catch(e){}
+  }
+  return false;
+}
+
+/* votes are written one row at a time — no counters to collide over */
+async function sendVote(key, rating){
+  const body = { i:key, c:cat, r:rating, v:VOTER, at:new Date().toISOString() };
+  const res = await fetch(BASE + '/votes/' + SHOP + '/' + cat + '.json',
+    { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+}
+
+function progress(){
+  const done = items.filter(i => rated[stem(i.img)] != null).length;
+  document.getElementById('bar').style.width = (100 * done / Math.max(1, items.length)) + '%';
+  document.getElementById('note').textContent =
+    done + ' ' + t('rated') + ' · ' + (items.length - done) + ' ' + t('left');
+}
+
+function render(){
+  const feed = document.getElementById('feed');
+  feed.innerHTML = '';
+  const label = labelOf(cat);
+
+  items.forEach((it, n)=>{
+    const key = stem(it.img);
+    const card = document.createElement('section');
+    card.className = 'card' + (rated[key] != null ? ' rated' : '');
+    card.dataset.key = key;
+    card.innerHTML =
+      '<div class="shot">' +
+        '<span class="pos">' + (n+1) + ' / ' + items.length + '</span>' +
+        '<img src="' + big(it.img) + '" alt="' + it.name + '" loading="lazy" draggable="false">' +
+        '<div class="done">' + t('thanks') + '</div>' +
+      '</div>' +
+      '<div class="meta">' +
+        '<div class="cat">' + label + '</div>' +
+        '<div class="name">' + it.name + '</div>' +
+        '<div class="ask">' + t('ask') + '</div>' +
+        '<div class="stars">' +
+          [1,2,3,4,5].map(v => '<button data-r="' + v + '" aria-label="' + v + '">★</button>').join('') +
+        '</div>' +
+        '<div class="row"><button class="skip">' + t('skip') + '</button></div>' +
+      '</div>';
+    feed.appendChild(card);
+  });
+
+  const end = document.createElement('section');
+  end.className = 'end';
+  end.innerHTML = '<div><h2>' + t('thanks') + '</h2><p>' + t('done') + '</p>' +
+    '<a class="cta" href="/#builder">' + t('build') + '</a></div>';
+  feed.appendChild(end);
+  progress();
+}
+
+document.getElementById('feed').addEventListener('click', async e=>{
+  const card = e.target.closest('.card');
+  if(!card) return;
+
+  if(e.target.closest('.skip')){ next(card); return; }
+
+  const b = e.target.closest('[data-r]');
+  if(!b) return;
+  const rating = Number(b.dataset.r);
+  const key = card.dataset.key;
+
+  card.querySelectorAll('.stars button').forEach(x =>
+    x.classList.toggle('on', Number(x.dataset.r) <= rating));
+  card.classList.add('rated');
+  markRated(key, rating);
+  progress();
+  next(card);
+
+  try{ await sendVote(key, rating); }
+  catch(err){ document.getElementById('note').textContent = t('offline'); }
+});
+
+function next(card){
+  const n = card.nextElementSibling;
+  if(n) n.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function pickCat(c){
+  cat = c;
+  items = (CAT[cat] || []).slice();
+  /* unrated first, so nobody re-rates what they already judged */
+  items.sort((a,b)=>{
+    const A = rated[stem(a.img)] != null ? 1 : 0, B = rated[stem(b.img)] != null ? 1 : 0;
+    return A - B || Math.random() - 0.5;
+  });
+  render();
+  document.getElementById('feed').scrollTo({ top:0 });
+  const u = new URL(location.href);
+  u.searchParams.set('cat', cat);
+  history.replaceState(null, '', u);
+}
+
+function applyLang(){
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('cat').innerHTML = Object.keys(CAT)
+    .map(c => '<option value="' + c + '"' + (c === cat ? ' selected' : '') + '>' + labelOf(c) + '</option>').join('');
+  render();
+}
+
+document.getElementById('cat').onchange = e => pickCat(e.target.value);
+document.getElementById('lang').onchange = e => { lang = e.target.value; applyLang(); };
+
+(async function(){
+  loadRated();
+  const nav = (navigator.language || 'fr').slice(0,2).toLowerCase();
+  lang = T[nav] ? nav : 'fr';
+  document.getElementById('lang').value = lang;
+
+  const ok = await load();
+  if(!ok){ document.getElementById('feed').innerHTML =
+    '<section class="end"><div><h2>—</h2><p>Catalogue indisponible.</p></div></section>'; return; }
+
+  const want = new URL(location.href).searchParams.get('cat');
+  cat = (want && CAT[want]) ? want : Object.keys(CAT)[0];
+  applyLang();
+  pickCat(cat);
+})();
+</script>
+</body>
+</html>
