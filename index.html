@@ -280,12 +280,13 @@ header.hero{text-align:center;padding:38px 5vw 24px}
 }
 .strip::-webkit-scrollbar{display:none}
 .thumb{
-  flex:none; position:relative; width:96px; height:96px; padding:0;
+  flex:none; position:relative; width:96px; height:112px; padding:0;
   border-radius:14px; overflow:hidden; cursor:pointer; scroll-snap-align:start;
-  border:1px solid rgba(255,255,255,.12); background:#0a1510; transition:.2s;
+  border:1px solid rgba(255,255,255,.12); transition:.2s;
+  background:radial-gradient(70% 70% at 50% 40%, #12261d, #0a1510);
 }
 .thumb img{
-  width:100%;height:100%;object-fit:cover;display:block;
+  width:100%;height:100%;object-fit:contain;display:block;
   pointer-events:none;                 /* the button handles the touch */
   -webkit-touch-callout:none;
   -webkit-user-select:none; user-select:none;
@@ -300,7 +301,7 @@ header.hero{text-align:center;padding:38px 5vw 24px}
 .thumb.on{border-color:var(--gold); box-shadow:0 0 0 2px var(--gold)}
 .thumb.on .tick{opacity:1; transform:scale(1)}
 .thumb:active{transform:scale(.97)}
-@media(max-width:480px){ .thumb{width:84px;height:84px} }
+@media(max-width:480px){ .thumb{width:84px;height:98px} }
 
 .builder-foot{
   display:flex;align-items:center;justify-content:space-between;
@@ -379,7 +380,7 @@ header.hero{text-align:center;padding:38px 5vw 24px}
   display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:20px 0 4px;
 }
 @media(max-width:400px){ .cf-grid{grid-template-columns:repeat(2,1fr)} }
-.cf-cell img{width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:12px;
+.cf-cell img{width:100%; aspect-ratio:3/4; object-fit:contain; border-radius:12px;
   border:1px solid rgba(201,164,92,.3); background:#0a1510}
 .cf-cell .cf-cat{font-size:.58rem; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); margin-top:7px}
 .cf-cell .cf-name{font-size:.76rem; color:var(--ivory); line-height:1.25}
@@ -993,7 +994,7 @@ function buildAll(){
         '<div class="strip">' +
           items.map((it,i)=>
             '<button class="thumb" data-i="' + i + '" aria-label="' + it.name + '">' +
-              '<img src="' + it.img + '" alt="" loading="lazy" draggable="false">' +
+              '<img src="' + shot(it.img, 260) + '" alt="" loading="lazy" draggable="false">' +
               '<span class="tick">✓</span>' +
             '</button>').join('') +
         '</div>';
@@ -1269,6 +1270,19 @@ document.getElementById('langSelect').onchange = (e)=>{
 /* Same framing, more pixels. The tray lens must keep the thumbnail's own
    crop, or the magnified view would not line up with what is under the
    finger — so this one leaves c_fill alone. */
+/* The catalogue stores w_320,h_320,c_fill — a square crop. The product
+   photos are portrait, so c_fill keeps the middle and throws away the
+   danglers at the bottom. Ask for the whole frame instead, at whatever
+   width the place it is shown actually needs. */
+function shot(url, w){
+  const s = String(url||'');
+  if(/\/upload\/[^/]+\//.test(s)){
+    return s.replace(/\/upload\/[^/]+\//,
+      '/upload/w_' + w + ',c_limit,q_auto:good,f_auto/');
+  }
+  return s;
+}
+
 function hiResSameCrop(url){
   if(/[?&]w=\d+/.test(url)) return url.replace(/([?&]w=)\d+/, '$11200');
   if(/\/w_\d+/.test(url)) return url.replace(/\/w_\d+/, '/w_1200').replace(/h_\d+/, 'h_1200');
@@ -1307,7 +1321,7 @@ function paintLightbox(){
   const S = st(lbBox);
   const it = catalogue[lbCat][S.index[lbCat]];
   const img = document.getElementById('lbImg');
-  img.src = hiRes(it.img);
+  img.src = shot(it.img, 1200);
   img.alt = it.name;
   document.getElementById('lbCat').textContent   = catLabel(lbCat);
   document.getElementById('lbName').textContent  = it.name;
@@ -1409,7 +1423,7 @@ function lensShow(cx, cy, pointer, srcEl, fit, clamp){
   }
 
   /* a tray thumbnail is only 320px wide — magnify the large copy instead */
-  const src = fit === 'cover' ? hiResSameCrop(img.src) : img.src;
+  const src = fit === 'cover' ? shot(img.src, 1200) : img.src;
   const Z = Number(prefs.zoom) || 3;
   const bw = dw * Z, bh = dh * Z;
   lens.style.backgroundImage = 'url("' + src + '")';
@@ -1674,7 +1688,7 @@ function showConfirm(){
     if(state.cart.length > 1) html += '<div class="cf-box-label">' + t.cf_box + ' ' + (i+1) + '</div>';
     Object.entries(b.items).forEach(([c,it])=>{
       html += '<div class="cf-cell">' +
-        '<img src="' + it.img + '" alt="" loading="lazy">' +
+        '<img src="' + shot(it.img, 320) + '" alt="" loading="lazy">' +
         '<div class="cf-cat">' + catLabel(c) + '</div>' +
         '<div class="cf-name">' + it.name + '</div></div>';
     });
