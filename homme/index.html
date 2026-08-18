@@ -415,6 +415,23 @@ header.hero{text-align:center;padding:22px 5vw 10px}
 .seo strong{color:var(--ivory); font-weight:500}
 .seo a{color:var(--gold-soft)}
 
+
+/* ---------- FOOTER ---------- */
+.site-foot{
+  position:relative; z-index:2; border-top:1px solid rgba(201,164,92,.2);
+  background:rgba(0,0,0,.22); padding:30px 4vw calc(34px + env(safe-area-inset-bottom));
+}
+.foot-in{width:min(620px,100%); margin-inline:auto; text-align:center}
+.foot-brand{font-family:'Cormorant Garamond',serif; font-size:1.15rem;
+  letter-spacing:.16em; color:var(--gold-soft)}
+.foot-brand b{color:var(--ivory); font-weight:500}
+.foot-links{display:flex; flex-wrap:wrap; gap:8px 16px; justify-content:center; margin:14px 0 16px}
+.foot-links a{color:var(--ivory); text-decoration:none; font-size:.78rem;
+  letter-spacing:.06em; opacity:.85}
+.foot-links a:hover{color:var(--gold-soft); opacity:1}
+.foot-note{font-size:.72rem; color:var(--muted); line-height:1.6; font-weight:300}
+.foot-copy{font-size:.68rem; color:var(--muted); margin-top:14px; letter-spacing:.06em; opacity:.75}
+
 /* toast */
 .toast{
   position:fixed;bottom:26px;left:50%;transform:translate(-50%,20px);
@@ -629,6 +646,26 @@ html[lang="ar"] .hero h1{line-height:1.35}
     <button class="checkout-btn" data-i18n="checkout">Checkout</button>
   </div>
 </aside>
+
+
+<footer class="site-foot">
+  <div class="foot-in">
+    <div class="foot-brand">JAWHARA <b>BOX</b></div>
+    <nav class="foot-links">
+      <a href="/">Accueil</a>
+      <a href="/coffret/">Catégories</a>
+      <a href="/a-propos/">À propos</a>
+      <a href="/vote/">Noter les pièces</a>
+      <a href="https://wa.me/212708955091" rel="noopener">WhatsApp</a>
+      <a href="https://www.instagram.com/jawharabox" rel="noopener">Instagram</a>
+    </nav>
+    <p class="foot-note" lang="fr" dir="ltr">Acier inoxydable, coloris doré ou argenté.
+      Livraison partout au Maroc · Paiement à la livraison.</p>
+    <p class="foot-note" lang="ar" dir="rtl">ستانلس ستيل بلون ذهبي أو فضي.
+      التوصيل لجميع المدن · الدفع عند الاستلام.</p>
+    <p class="foot-copy">© <span id="yr">2026</span> JAWHARA BOX — Tous droits réservés.</p>
+  </div>
+</footer>
 
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true">
   <button class="lb-close" id="lbClose" aria-label="Close">&times;</button>
@@ -1239,6 +1276,8 @@ function showToast(msg){
   t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2200);
 }
+
+document.getElementById('yr').textContent = new Date().getFullYear();
 
 /* language toggle */
 document.getElementById('langSelect').onchange = (e)=>{
